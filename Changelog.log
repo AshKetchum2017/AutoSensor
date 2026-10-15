@@ -1,0 +1,10 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------
+2026-10-14
+[Implementasi awal]
++ Menambahkan Sensor hitam dan WhiteSpace putih dengan area virtual 325 x 485 mm di tengah halaman aktif, tanpa mengubah ukuran halaman.
++ Hasil langsung digroup di Layer 1 paling atas; WhiteSpace mengikuti anchor dinamis dan menonaktifkan input ukuran sensor.
++ Menambahkan pembatalan untuk anchor hilang/ambigu, CommandGroup, serta pemulihan state dan pembersihan hasil parsial saat gagal.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+2026-10-15
++ Menambahkan default ukuran sensor 7 mm dengan hint abu-abu pada textbox kosong; input pengguna tetap menggantikan default dan dipertahankan saat berpindah mode.
