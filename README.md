@@ -1,49 +1,151 @@
 # AutoSensor
 
-Macro CorelDRAW VBA untuk membuat sensor hitam atau objek WhiteSpace putih pada halaman aktif. Area virtual **325 Ã— 485 mm** dipusatkan pada halaman aktif tanpa memeriksa atau mengubah ukuran halaman sebenarnya.
+AutoSensor adalah macro VBA untuk CorelDRAW yang membantu menyiapkan **sensor hitam** dan **WhiteSpace putih** pada halaman aktif.
 
-## Koordinat
+Mode **Sensor** membuat empat ellipse dengan diameter yang dapat diatur. Mode **WhiteSpace** membuat objek putih yang dipusatkan pada anchor regmark dan `qr.svg`. Hasil dikumpulkan dalam satu group di `Layer 1`, dengan pengaturan urutan layer serta pemulihan state dokumen.
 
-Semua koordinat di bawah adalah pusat objek atau pusat area pencarian, dalam milimeter, relatif terhadap sudut kiri bawah area virtual. X bertambah ke kanan dan Y bertambah ke atas. Posisi origin ruler tidak menjadi titik acuan macro.
+Macro menggunakan area virtual **325 × 485 mm** yang dipusatkan pada halaman aktif. Ukuran halaman sebenarnya tetap dipertahankan.
 
-Sudut kiri bawah area virtual dihitung dari pusat halaman dikurangi `(162.5, 242.5)` mm. Jika halaman lebih kecil dari area virtual, sebagian hasil dapat berada di luar halaman.
+## Main Features
 
-## Mode Sensor
+### Sensor
 
-Pilih `optSensor`, lalu isi diameter di `txbSensorSize`. Default adalah **7 mm**: textbox kosong menampilkan hint abu-abu `7 mm`, yang hilang saat mendapat fokus dan kembali saat textbox kosong ditinggalkan. Process memakai 7 mm bila input kosong atau hint aktif. Angka yang diisi pengguna menggantikan default. Ukuran harus lebih dari 0 mm. Desimal titik maupun koma diterima; jangan gunakan satuan atau pemisah ribuan.
+Pilih `optSensor`, lalu tentukan diameter melalui `txbSensorSize`. Process membuat **empat ellipse hitam**, tanpa outline, dengan fill **RGB `#000000`**.
 
-| Diameter | Empat pusat ellipse (X, Y) |
+Diameter default adalah **7 mm**. Saat kolom kosong, form menampilkan hint abu-abu `7 mm`; hint hilang saat kolom mendapat fokus dan kembali saat kolom kosong ditinggalkan. Process memakai diameter default jika kolom kosong atau hint masih aktif.
+
+Input diameter harus berupa angka **lebih besar dari 0**, tanpa satuan atau pemisah ribuan. Titik dan koma dapat digunakan sebagai pemisah desimal, misalnya `5.5` atau `5,5`. Jika mengetik nilai sendiri, masukkan `7`, bukan `7 mm`.
+
+Posisi sensor ditentukan oleh diameter:
+
+| Diameter | Pusat empat ellipse `(X; Y)`, dalam mm |
 | --- | --- |
-| â‰¤5 mm | (10, 10), (10, 475), (315, 10), (315, 475) |
-| >5 mm | (11, 11), (11, 474), (314, 11), (314, 474) |
+| **≤ 5 mm** | `(10; 10)`, `(10; 475)`, `(315; 10)`, `(315; 475)` |
+| **> 5 mm** | `(11; 11)`, `(11; 474)`, `(314; 11)`, `(314; 474)` |
 
-Keempat ellipse berdiameter sesuai input, memakai fill **RGB #000000**, tanpa outline.
+Koordinat mengacu pada area virtual, bukan pada selection atau posisi anchor. Mode Sensor tidak memerlukan layer `scpro2_regmarks` maupun `scpro2_printonly`.
 
-## Mode WhiteSpace
+### WhiteSpace
 
-Pilih `optWhiteSpace`. `txbSensorSize` dinonaktifkan dan nilainya tidak dipakai; kembali ke Sensor mengaktifkan textbox tanpa menghapus nilainya.
+Pilih `optWhiteSpace` untuk membuat **empat ellipse putih berdiameter 5,5 mm** dan **satu rectangle putih berukuran 10,5 × 10,5 mm**. Semua objek memakai fill **RGB `#FFFFFF`**, tanpa outline.
 
-| Layer anchor | Pusat area pencarian (X, Y) | Area pencarian | Hasil |
-| --- | --- | --- | --- |
-| `scpro2_regmarks` | (6, 10), (6, 475), (319, 10), (319, 475) | Persegi 10 Ã— 10 mm pada setiap posisi | Empat ellipse diameter 5.5 mm |
-| `scpro2_printonly` | (162.5, 11.5) | Persegi 12 Ã— 12 mm | Satu rectangle 10.5 Ã— 10.5 mm |
+Pada mode ini, `txbSensorSize` dinonaktifkan dan nilainya tidak digunakan. Saat kembali ke Sensor, kolom diaktifkan tanpa menghapus nilai yang tersimpan.
 
-Anchor pada `scpro2_printonly` harus bernama `qr.svg`. Keempat anchor regmark tidak dibatasi nama, jenis, atau ukuran. Pusat bounding box anchor harus berada di dalam atau tepat di batas area pencarian, dengan toleransi numerik 0.000001 mm. Group dihitung sebagai satu kandidat; anggota group tidak diperiksa terpisah.
+Macro mencari anchor pada halaman aktif sesuai tabel berikut:
 
-Seluruh area wajib memiliki tepat satu kandidat. Anchor hilang, kandidat ganda, atau layer anchor yang hilang menyebabkan pembatalan dengan `MsgBox`, sebelum objek hasil dibuat. Hasil dipusatkan pada posisi aktual anchor, memakai fill **RGB #FFFFFF**, tanpa outline. Anchor tidak dipindahkan atau digroup bersama hasil.
+| Layer anchor | Nama anchor | Pusat area pencarian `(X; Y)`, dalam mm | Ukuran area pencarian | Objek hasil per anchor |
+| --- | --- | --- | --- | --- |
+| `scpro2_regmarks` | Bebas | `(6; 10)`, `(6; 475)`, `(319; 10)`, `(319; 475)` | Persegi **10 × 10 mm** pada setiap posisi | Ellipse diameter **5,5 mm** |
+| `scpro2_printonly` | `qr.svg` | `(162,5; 11,5)` | Persegi **12 × 12 mm** | Rectangle **10,5 × 10,5 mm** |
 
-## Hasil dan state dokumen
+Ukuran pada kolom area pencarian adalah ukuran **zona pencarian pusat anchor**, bukan ukuran yang wajib dimiliki anchor.
 
-- Setiap Process membuat satu group baru di `Layer 1`; layer dibuat jika belum ada. Process berulang menambahkan group baru.
-- Group ditempatkan paling atas di `Layer 1`. `Layer 1` juga dinaikkan ke atas layer biasa lainnya pada halaman aktif; isi lama layer tersebut ikut naik. Layer sistem tidak dijadikan acuan pemindahan.
-- Seluruh perubahan dokumen berada dalam satu `BeginCommandGroup`/`EndCommandGroup`, termasuk perubahan sementara unit dan status kunci layer.
-- Layer anchor/hasil yang terkunci dibuka sementara, lalu status `Editable` asal dipulihkan. Selection, layer aktif, unit dokumen, dan kedua unit ruler dipulihkan.
-- Jika gagal, macro mencoba menghapus hasil parsial dan layer hasil yang baru dibuat, memulihkan urutan layer asal, lalu menutup CommandGroup. Kegagalan pemulihan ikut dilaporkan di `MsgBox`.
-- Ukuran halaman, posisi/isi anchor, serta flag visible/printable layer tidak diubah.
+Setiap zona harus memiliki **tepat satu kandidat**. Objek putih ditempatkan pada **pusat bounding box anchor yang ditemukan**, sehingga posisinya mengikuti anchor aktual di dalam zona tersebut.
 
-## Pemasangan dan penggunaan
+### Validasi Anchor
 
-1. Pasang [AutoSensorGenerator.bas](src/modules/AutoSensorGenerator.bas) sebagai standard module pada project GMS yang sama.
-2. Perbarui kode UserForm `AutoSensorMenu` dari [AutoSensorMenu.vba](src/forms/AutoSensorMenu.vba). Form menggunakan kontrol `optSensor`, `optWhiteSpace`, `txbSensorSize`, `cmdProcess`, dan `cmdClose`; file `.vba` ini hanya kode form, bukan resource layout.
-3. Pasang atau pertahankan [AutoSensorWizard.bas](src/wizard/AutoSensorWizard.bas), lalu jalankan macro publik `AutoSensor`.
-4. Pilih mode dan klik Process. Close menutup form.
+Pencarian WhiteSpace mengikuti aturan berikut:
+
+- Pusat bounding box anchor harus berada di dalam atau tepat pada batas zona pencarian. Toleransi numeriknya **0,000001 mm**.
+- Empat anchor pada `scpro2_regmarks` tidak dibatasi nama, jenis, atau ukuran.
+- Anchor pada `scpro2_printonly` harus bernama `qr.svg`.
+- Pencocokan nama layer dan `qr.svg` tidak membedakan huruf besar/kecil.
+- Hanya objek yang berada langsung pada layer yang diperiksa. Group dihitung sebagai satu kandidat; anggota group tidak ditelusuri secara terpisah.
+- Seluruh lima anchor harus valid sebelum objek hasil pertama dibuat.
+
+Jika layer anchor tidak ditemukan, satu zona tidak mempunyai kandidat, atau satu zona mempunyai lebih dari satu kandidat, Process dibatalkan dengan `MsgBox`. Nama layer yang dicari juga harus unik; layer dengan nama sama lebih dari satu menyebabkan validasi gagal.
+
+Anchor tetap berada pada posisi serta layer asalnya, dan tidak digroup bersama hasil WhiteSpace.
+
+## Area Virtual dan Koordinat
+
+Area virtual **325 × 485 mm** dipusatkan pada halaman aktif. Sudut kiri bawahnya dihitung sebagai:
+
+```text
+Origin X = Page.CenterX − 162,5 mm
+Origin Y = Page.CenterY − 242,5 mm
+```
+
+Semua koordinat dalam tabel mengacu pada sudut kiri bawah area virtual tersebut. **X bertambah ke kanan** dan **Y bertambah ke atas**. Koordinat Sensor adalah pusat objek; koordinat WhiteSpace adalah pusat zona pencarian anchor.
+
+Posisi origin ruler tidak mengubah acuan penempatan terhadap pusat halaman. Macro tidak memeriksa apakah ukuran halaman sama dengan area virtual dan tidak mengubah ukuran halaman. Pada halaman yang lebih kecil, sebagian hasil dapat berada di luar halaman.
+
+## Hasil, Layer, dan State Dokumen
+
+### Penempatan Hasil
+
+- Setiap Process yang berhasil membuat **satu group baru** di `Layer 1` pada halaman aktif. Layer dibuat jika belum ada.
+- Process berulang menambahkan group baru; hasil yang sudah ada tidak diganti.
+- Group hasil ditempatkan paling atas di dalam `Layer 1`.
+- `Layer 1` dinaikkan ke atas layer biasa lainnya pada halaman aktif. **Isi lama `Layer 1` ikut naik** bersama layer tersebut. Layer sistem tidak dijadikan acuan pemindahan.
+
+### Pemulihan State
+
+Pemrosesan menggunakan satuan milimeter sementara. Setelah selesai, macro memulihkan:
+
+- Selection yang aktif sebelum Process.
+- Layer aktif.
+- Satuan dokumen serta satuan ruler horizontal dan vertikal.
+- Status `Editable` layer anchor dan hasil yang dibuka sementara.
+
+Group hasil tidak otomatis menggantikan selection awal. Ukuran halaman, posisi dan isi anchor, serta flag `Visible`/`Printable` layer tetap dipertahankan.
+
+Seluruh perubahan dokumen dikelompokkan dalam satu `BeginCommandGroup`/`EndCommandGroup`, termasuk perubahan sementara satuan dan status kunci layer. Hasil Process yang selesai normal dapat dibatalkan dengan **satu Undo**.
+
+### Penanganan Kegagalan
+
+Jika terjadi kegagalan, macro mencoba menghapus objek atau group hasil parsial, menghapus `Layer 1` jika layer itu baru dibuat oleh Process, dan memulihkan urutan layer jika sudah berubah. Selection, layer aktif, satuan, serta status kunci layer juga dicoba dipulihkan.
+
+`MsgBox` menampilkan tahap operasi, nomor error, sumber error, dan penjelasannya. Kegagalan pemulihan dilaporkan bersama pesan pembatalan agar hasil di dokumen dapat diperiksa sebelum melanjutkan.
+
+## Kontrol Form
+
+| Kontrol | Fungsi |
+| --- | --- |
+| `optSensor` | Memilih pembuatan empat sensor hitam. Dipilih secara bawaan jika belum ada pilihan mode saat form dibuka. |
+| `optWhiteSpace` | Memilih pembuatan objek putih berdasarkan lima anchor. |
+| `txbSensorSize` | Diameter sensor dalam mm; hanya digunakan pada mode Sensor. |
+| `cmdProcess` | Menjalankan mode terpilih pada halaman aktif. Tombol dinonaktifkan selama pemrosesan untuk mencegah Process berulang. |
+| `cmdClose` | Menutup form ketika tidak sedang memproses. |
+
+Process memerlukan tepat satu mode terpilih. Setelah Process selesai, form tetap terbuka untuk digunakan kembali.
+
+## Cara Menggunakan
+
+### Membuat Sensor
+
+1. Buka dokumen CorelDRAW dan aktifkan halaman tujuan. Tidak perlu memilih objek.
+2. Jalankan macro `AutoSensor` untuk membuka `AutoSensorMenu`.
+3. Pilih `optSensor`.
+4. Biarkan diameter kosong untuk memakai **7 mm**, atau masukkan diameter positif pada `txbSensorSize`.
+5. Tekan `cmdProcess`, lalu periksa empat sensor hitam di `Layer 1`.
+6. Gunakan `cmdClose` untuk menutup form.
+
+### Membuat WhiteSpace
+
+1. Aktifkan halaman yang mempunyai layer `scpro2_regmarks` dan `scpro2_printonly`.
+2. Pastikan empat anchor regmark berada pada zona pencarian masing-masing dan anchor bernama `qr.svg` berada pada zona pencarian `scpro2_printonly`.
+3. Jalankan `AutoSensor` dan pilih `optWhiteSpace`. Tidak perlu memilih anchor secara manual.
+4. Tekan `cmdProcess`.
+5. Periksa empat ellipse dan satu rectangle putih yang mengikuti pusat anchor. Jika muncul pesan pembatalan, sesuaikan layer atau kandidat sesuai pesan tersebut sebelum mencoba kembali.
+
+## Pemasangan dan Source
+
+Repository menyediakan standard module, macro pembuka, dan code-behind UserForm. File `.vba` berisi kode form; layout visual UserForm lengkap tidak disertakan.
+
+1. Import [AutoSensorGenerator.bas](src/modules/AutoSensorGenerator.bas) sebagai standard module pada project GMS CorelDRAW.
+2. Siapkan UserForm bernama `AutoSensorMenu`, buat kontrol sesuai tabel **Kontrol Form**, lalu pasang kode dari [AutoSensorMenu.vba](src/forms/AutoSensorMenu.vba).
+3. Import [AutoSensorWizard.bas](src/wizard/AutoSensorWizard.bas) ke project yang sama.
+4. Jalankan macro publik `AutoSensor`. Form dibuka dengan `vbModal`.
+
+| Lokasi | Peran |
+| --- | --- |
+| `src/forms/AutoSensorMenu.vba` | Pilihan mode, input diameter dan hint, Process, serta Close. |
+| `src/modules/AutoSensorGenerator.bas` | `ASGenerate`, validasi ukuran/layer/anchor, pembuatan dan pengelompokan hasil, urutan layer, serta pemulihan state dokumen. |
+| `src/wizard/AutoSensorWizard.bas` | Entry point `AutoSensor` untuk membuka form. |
+
+## Lisensi dan Masukan
+
+Project ini menggunakan **MIT License**; lihat [LICENSE](LICENSE).
+
+Source boleh dipelajari dan dikembangkan, dan issue/feedback tentang bug, edge case, CorelDRAW API, architecture, atau improvement sangat dihargai.
