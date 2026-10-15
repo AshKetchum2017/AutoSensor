@@ -17,10 +17,6 @@ Public Sub ASGenerate(ByVal whiteSpace As Boolean, ByVal sensorText As String)
     Dim commandOpen As Boolean
     Dim stateSaved As Boolean
     Dim targetCreated As Boolean
-    Dim previousAbove As Layer
-    Dim topLayer As Layer
-    Dim candidateLayer As Layer
-    Dim layerOrderChanged As Boolean
     Dim created As ShapeRange
     Dim result As Shape
     Dim newShape As Shape
@@ -49,19 +45,6 @@ Public Sub ASGenerate(ByVal whiteSpace As Boolean, ByVal sensorText As String)
 
     operation = "Mencari layer pada halaman aktif"
     Set layers(1) = ASFindLayer(targetPage, "Layer 1", False)
-    If Not layers(1) Is Nothing Then
-        For Each candidateLayer In targetPage.Layers
-            If Not candidateLayer.IsSpecialLayer Then
-                If candidateLayer.Index < layers(1).Index Then
-                    If previousAbove Is Nothing Then
-                        Set previousAbove = candidateLayer
-                    ElseIf candidateLayer.Index > previousAbove.Index Then
-                        Set previousAbove = candidateLayer
-                    End If
-                End If
-            End If
-        Next candidateLayer
-    End If
     If whiteSpace Then
         Set layers(2) = ASFindLayer(targetPage, "scpro2_regmarks", True)
         Set layers(3) = ASFindLayer(targetPage, "scpro2_printonly", True)
@@ -164,23 +147,6 @@ Public Sub ASGenerate(ByVal whiteSpace As Boolean, ByVal sensorText As String)
     Set result = created.Group
     result.MoveToLayer layers(1)
     result.OrderToFront
-    ' OrderToFront hanya mengatur urutan dalam layer. Naikkan juga layer hasil.
-    For Each candidateLayer In targetPage.Layers
-        If Not candidateLayer.IsSpecialLayer Then
-            If topLayer Is Nothing Then
-                Set topLayer = candidateLayer
-            ElseIf candidateLayer.Index < topLayer.Index Then
-                Set topLayer = candidateLayer
-            End If
-        End If
-    Next candidateLayer
-    If Not topLayer Is Nothing Then
-        If topLayer.Index < layers(1).Index Then
-            operation = "Menempatkan Layer 1 di bagian teratas halaman aktif"
-            layerOrderChanged = True
-            layers(1).MoveAbove topLayer
-        End If
-    End If
 
     operation = "Memulihkan state dokumen"
     ASRestoreState doc, previousLayer, previousSelection, layers, wasEditable, _
@@ -220,13 +186,6 @@ GenerateCleanup:
             Err.Clear
             If created.Count > 0 Then created.Delete
             ASRecordCleanupIssue cleanupIssues, "menghapus objek hasil"
-        End If
-        If layerOrderChanged And Not targetCreated Then
-            If Not previousAbove Is Nothing Then
-                Err.Clear
-                layers(1).MoveBelow previousAbove
-                ASRecordCleanupIssue cleanupIssues, "memulihkan urutan Layer 1"
-            End If
         End If
         If targetCreated Then
             Err.Clear

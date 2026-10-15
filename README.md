@@ -2,7 +2,7 @@
 
 AutoSensor adalah macro VBA untuk CorelDRAW yang membantu menyiapkan **sensor hitam** dan **WhiteSpace putih** pada halaman aktif.
 
-Mode **Sensor** membuat empat ellipse dengan diameter yang dapat diatur. Mode **WhiteSpace** membuat objek putih yang dipusatkan pada anchor regmark dan `qr.svg`. Hasil dikumpulkan dalam satu group di `Layer 1`, dengan pengaturan urutan layer serta pemulihan state dokumen.
+Mode **Sensor** membuat empat ellipse dengan diameter yang dapat diatur. Mode **WhiteSpace** membuat objek putih yang dipusatkan pada anchor regmark dan `qr.svg`. Hasil dikumpulkan dalam satu group di `Layer 1`, dengan pengaturan Z-order objek serta pemulihan state dokumen.
 
 Macro menggunakan area virtual **325 × 485 mm** yang dipusatkan pada halaman aktif. Ukuran halaman sebenarnya tetap dipertahankan.
 
@@ -77,7 +77,7 @@ Posisi origin ruler tidak mengubah acuan penempatan terhadap pusat halaman. Macr
 - Setiap Process yang berhasil membuat **satu group baru** di `Layer 1` pada halaman aktif. Layer dibuat jika belum ada.
 - Process berulang menambahkan group baru; hasil yang sudah ada tidak diganti.
 - Group hasil ditempatkan paling atas di dalam `Layer 1`.
-- `Layer 1` dinaikkan ke atas layer biasa lainnya pada halaman aktif. **Isi lama `Layer 1` ikut naik** bersama layer tersebut. Layer sistem tidak dijadikan acuan pemindahan.
+- Urutan `Layer 1` terhadap layer lain tetap dipertahankan. Pengaturan Z-order hanya menaikkan group hasil di dalam `Layer 1`.
 
 ### Pemulihan State
 
@@ -94,7 +94,7 @@ Seluruh perubahan dokumen dikelompokkan dalam satu `BeginCommandGroup`/`EndComma
 
 ### Penanganan Kegagalan
 
-Jika terjadi kegagalan, macro mencoba menghapus objek atau group hasil parsial, menghapus `Layer 1` jika layer itu baru dibuat oleh Process, dan memulihkan urutan layer jika sudah berubah. Selection, layer aktif, satuan, serta status kunci layer juga dicoba dipulihkan.
+Jika terjadi kegagalan, macro mencoba menghapus objek atau group hasil parsial dan menghapus `Layer 1` jika layer itu baru dibuat oleh Process. Selection, layer aktif, satuan, serta status kunci layer juga dicoba dipulihkan.
 
 `MsgBox` menampilkan tahap operasi, nomor error, sumber error, dan penjelasannya. Kegagalan pemulihan dilaporkan bersama pesan pembatalan agar hasil di dokumen dapat diperiksa sebelum melanjutkan.
 
@@ -141,7 +141,7 @@ Repository menyediakan standard module, macro pembuka, dan code-behind UserForm.
 | Lokasi | Peran |
 | --- | --- |
 | `src/forms/AutoSensorMenu.vba` | Pilihan mode, input diameter dan hint, Process, serta Close. |
-| `src/modules/AutoSensorGenerator.bas` | `ASGenerate`, validasi ukuran/layer/anchor, pembuatan dan pengelompokan hasil, urutan layer, serta pemulihan state dokumen. |
+| `src/modules/AutoSensorGenerator.bas` | `ASGenerate`, validasi ukuran/layer/anchor, pembuatan dan pengelompokan hasil, Z-order objek, serta pemulihan state dokumen. |
 | `src/wizard/AutoSensorWizard.bas` | Entry point `AutoSensor` untuk membuka form. |
 
 ## Lisensi dan Masukan
