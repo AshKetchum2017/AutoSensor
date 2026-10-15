@@ -1,6 +1,6 @@
 # AutoSensor
 
-Macro CorelDRAW VBA untuk membuat sensor hitam atau objek WhiteSpace putih pada halaman aktif. Area virtual **325 × 485 mm** dipusatkan pada halaman aktif tanpa memeriksa atau mengubah ukuran halaman sebenarnya.
+Macro CorelDRAW VBA untuk membuat sensor hitam atau objek WhiteSpace putih pada halaman aktif. Area virtual **325 Ã— 485 mm** dipusatkan pada halaman aktif tanpa memeriksa atau mengubah ukuran halaman sebenarnya.
 
 ## Koordinat
 
@@ -10,11 +10,11 @@ Sudut kiri bawah area virtual dihitung dari pusat halaman dikurangi `(162.5, 242
 
 ## Mode Sensor
 
-Pilih `optSensor`, lalu isi diameter di `txbSensorSize`. Ukuran harus lebih dari 0 mm. Desimal titik maupun koma diterima; jangan gunakan satuan atau pemisah ribuan.
+Pilih `optSensor`, lalu isi diameter di `txbSensorSize`. Default adalah **7 mm**: textbox kosong menampilkan hint abu-abu `7 mm`, yang hilang saat mendapat fokus dan kembali saat textbox kosong ditinggalkan. Process memakai 7 mm bila input kosong atau hint aktif. Angka yang diisi pengguna menggantikan default. Ukuran harus lebih dari 0 mm. Desimal titik maupun koma diterima; jangan gunakan satuan atau pemisah ribuan.
 
 | Diameter | Empat pusat ellipse (X, Y) |
 | --- | --- |
-| ≤5 mm | (10, 10), (10, 475), (315, 10), (315, 475) |
+| â‰¤5 mm | (10, 10), (10, 475), (315, 10), (315, 475) |
 | >5 mm | (11, 11), (11, 474), (314, 11), (314, 474) |
 
 Keempat ellipse berdiameter sesuai input, memakai fill **RGB #000000**, tanpa outline.
@@ -25,8 +25,8 @@ Pilih `optWhiteSpace`. `txbSensorSize` dinonaktifkan dan nilainya tidak dipakai;
 
 | Layer anchor | Pusat area pencarian (X, Y) | Area pencarian | Hasil |
 | --- | --- | --- | --- |
-| `scpro2_regmarks` | (6, 10), (6, 475), (319, 10), (319, 475) | Persegi 10 × 10 mm pada setiap posisi | Empat ellipse diameter 5.5 mm |
-| `scpro2_printonly` | (162.5, 11.5) | Persegi 12 × 12 mm | Satu rectangle 10.5 × 10.5 mm |
+| `scpro2_regmarks` | (6, 10), (6, 475), (319, 10), (319, 475) | Persegi 10 Ã— 10 mm pada setiap posisi | Empat ellipse diameter 5.5 mm |
+| `scpro2_printonly` | (162.5, 11.5) | Persegi 12 Ã— 12 mm | Satu rectangle 10.5 Ã— 10.5 mm |
 
 Anchor pada `scpro2_printonly` harus bernama `qr.svg`. Keempat anchor regmark tidak dibatasi nama, jenis, atau ukuran. Pusat bounding box anchor harus berada di dalam atau tepat di batas area pencarian, dengan toleransi numerik 0.000001 mm. Group dihitung sebagai satu kandidat; anggota group tidak diperiksa terpisah.
 
@@ -47,9 +47,3 @@ Seluruh area wajib memiliki tepat satu kandidat. Anchor hilang, kandidat ganda, 
 2. Perbarui kode UserForm `AutoSensorMenu` dari [AutoSensorMenu.vba](src/forms/AutoSensorMenu.vba). Form menggunakan kontrol `optSensor`, `optWhiteSpace`, `txbSensorSize`, `cmdProcess`, dan `cmdClose`; file `.vba` ini hanya kode form, bukan resource layout.
 3. Pasang atau pertahankan [AutoSensorWizard.bas](src/wizard/AutoSensorWizard.bas), lalu jalankan macro publik `AutoSensor`.
 4. Pilih mode dan klik Process. Close menutup form.
-
-## Status validasi
-
-Source dan member API diperiksa terhadap interop CorelDRAW 2024. Simulasi dengan source yang diadaptasi ke VB.NET dan mock tidak menggantikan import/compile VBE, binding MSForms, atau uji CorelDRAW. Validasi tersebut, pemeriksaan visual, dan satu Undo/Redo masih perlu dilakukan di host.
-
-Acuan API: [CreateEllipse2](https://community.coreldraw.com/sdk/api/draw/17/m/layer.createellipse2) dan [urutan objek dalam layer](https://community.coreldraw.com/sdk/w/guide/214/8-6---working-with-shapes).
