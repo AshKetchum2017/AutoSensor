@@ -83,12 +83,11 @@ Posisi origin ruler tidak mengubah acuan penempatan terhadap pusat halaman. Macr
 
 Pemrosesan menggunakan satuan milimeter sementara. Setelah selesai, macro memulihkan:
 
-- Selection yang aktif sebelum Process.
 - Layer aktif.
 - Satuan dokumen serta satuan ruler horizontal dan vertikal.
 - Status `Editable` layer anchor dan hasil yang dibuka sementara.
 
-Group hasil tidak otomatis menggantikan selection awal. Ukuran halaman, posisi dan isi anchor, serta flag `Visible`/`Printable` layer tetap dipertahankan.
+Setelah generate berhasil, hanya **group hasil** yang terseleksi; objek anggota group dan selection awal tidak ikut terseleksi. Ukuran halaman, posisi dan isi anchor, serta flag `Visible`/`Printable` layer tetap dipertahankan.
 
 Seluruh perubahan dokumen dikelompokkan dalam satu `BeginCommandGroup`/`EndCommandGroup`, termasuk perubahan sementara satuan dan status kunci layer. Hasil Process yang selesai normal dapat dibatalkan dengan **satu Undo**.
 

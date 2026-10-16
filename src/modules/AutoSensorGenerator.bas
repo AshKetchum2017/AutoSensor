@@ -148,8 +148,11 @@ Public Sub ASGenerate(ByVal whiteSpace As Boolean, ByVal sensorText As String)
     result.MoveToLayer layers(1)
     result.OrderToFront
 
+    operation = "Menyeleksi group hasil"
+    result.CreateSelection
+
     operation = "Memulihkan state dokumen"
-    ASRestoreState doc, previousLayer, previousSelection, layers, wasEditable, _
+    ASRestoreState doc, previousLayer, layers, wasEditable, _
                    previousUnit, previousHUnit, previousVUnit
     operation = "Menutup CommandGroup"
     doc.EndCommandGroup
@@ -300,7 +303,7 @@ Private Function ASFindAnchor(ByVal sourceLayer As Layer, ByVal centerX As Doubl
 End Function
 
 Private Sub ASRestoreState(ByVal doc As Document, ByVal previousLayer As Layer, _
-                           ByVal previousSelection As ShapeRange, ByRef layers() As Layer, _
+                           ByRef layers() As Layer, _
                            ByRef wasEditable() As Boolean, ByVal previousUnit As cdrUnit, _
                            ByVal previousHUnit As cdrUnit, ByVal previousVUnit As cdrUnit)
     Dim i As Long
@@ -308,8 +311,6 @@ Private Sub ASRestoreState(ByVal doc As Document, ByVal previousLayer As Layer, 
         If Not layers(i) Is Nothing Then layers(i).Editable = wasEditable(i)
     Next i
     previousLayer.Activate
-    doc.ClearSelection
-    If previousSelection.Count > 0 Then previousSelection.CreateSelection
     doc.Unit = previousUnit
     doc.Rulers.HUnits = previousHUnit
     doc.Rulers.VUnits = previousVUnit
