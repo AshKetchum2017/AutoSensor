@@ -39,6 +39,7 @@ ProcessFinished:
     mProcessing = False
     cmdProcess.Enabled = True
     UpdateSizeInput
+    Unload Me
     Exit Sub
 
 ProcessFailed:
