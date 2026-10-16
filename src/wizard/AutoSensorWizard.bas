@@ -1,3 +1,3 @@
 Sub AutoSensor()
-    AutoSensorMenu.Show vbModal
+    AutoSensorMenu.Show vbModeless
 End Sub
